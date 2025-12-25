@@ -36,4 +36,15 @@ Ce projet a pour objetif de créer une plateforme web accessible aux étudiants 
 | Diagramme de séquence	        | 27 novembre   | ✅ Terminé  | `M1`         |
 | Implémentation	              | 30 novembre   | ✅ Terminé  | `M1` `M2` `M3` `M4`|
 | Tests unitaires	              | 29 novembre   | ✅ Terminé  | `M1` `M3` `M4`|
+| Backend (API REST)            | 21 décembre   | ✅ Terminé  | `M1` `M3` `M4`|
+| Frontend (CLI)                | 23 décembre   | ✅ Terminé  | `M1` `M3` |
+| Tests unitaires	dev 3         | 23 décembre   | ✅ Terminé  | `M1` `M2` |
+| Oracle de tests               | 24 décembre   | ✅ Terminé  | `M4`|
+| Manuel d'utilisation(README)  | 25 décembre   | ✅ Terminé  | `M1`|
+| Javadoc       	              | 25 décembre   | ✅ Terminé  | `M2`|
+| Vidéo de présentation  	      | 26 décembre   | ✅ Terminé  | `M2` `M4`|
+| Bot Discord           	      | 23 décembre   | ✅ Terminé  | `M3`|
+| Interface graphique           | 23 décembre   | ✅ Terminé  | `M3`|
+| Github actions                | 26 décembre   | ✅ Terminé  | `M1` `M2` `M3` `M4`|
+
 
