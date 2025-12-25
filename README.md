@@ -84,6 +84,61 @@ glossaire.md <br>
 index.md <br>
 risques.md <br>
 
+## Structure du projet
+
+```sh
+rest-api/
+│
+├── src/
+│   ├── main/
+│   │   ├── resources/data
+│   │   ├── java/com/diro/ift2255/
+│   │   │   ├── config/
+│   │   │   │   └── Routes.java           # Définition des routes HTTP
+│   │   │   │
+│   │   │   ├── controller/
+│   │   │   │   ├── CourseController.java       # Contrôleur pour les endpoints de cours
+│   │   │   │   └── UserController.java         # Contrôleur pour les endpoints utilisateurs
+│   │   │   │   └── ComparaisonController.java  # Contrôleur pour les cours sélectionnés pour comparaison
+│   │   │   │   └── EnsembleController.java     # Contrôleur pour l'outil qui permet de créer des ensembles de cours
+│   │   │   │
+│   │   │   ├── model/
+│   │   │   │   ├── Course.java           # Modèle représentant un cours
+│   │   │   │   └── User.java             # Modèle représentant un utilisateur
+│   │   │   │
+│   │   │   ├── service/
+│   │   │   │   ├── CourseService.java    # Logique métier liée aux cours
+│   │   │   │   └── UserService.java      # Logique métier liée aux utilisateurs
+│   │   │   │
+│   │   │   ├── util/
+│   │   │   │   ├── HttpClientAPI.java    # Client HTTP pour appels externes
+│   │   │   │   ├── HttpResponse.java     # Représentation d'une réponse HTTP
+│   │   │   │   ├── HttpStatus.java       # Codes de statut HTTP
+│   │   │   │   ├── ResponseUtil.java     # Outils pour formater les réponses
+│   │   │   │   └── ValidationUtil.java   # Méthodes utilitaires de validation
+│   │   │   │
+│   │   │   ├── Cli.java             
+│   │   │   │
+│   │   │   └── Main.java                 # Point d’entrée du serveur Javalin
+│   │   │
+│   │   └── resources/                    # Ressources utilisées dans le code
+│   │
+│   └── test/                             # Tests unitaires (JUnit)
+│   │    ├── java/com/diro/ift2255/
+│   │    │   ├── controller/                             
+│   │    │   │     ├── CourseControllerTest.java        # Contrôleur pour les tests de CourseController
+│   │    │   │     ├── EnsembleControllerTest.java      # Contrôleur pour les tests de EnsembleController
+│   │    │   │     ├── UserControllerTest.java          # Contrôleur pour les tests de UserController
+│   │    │   │     └──  ComparaisonControllerTest.java   # Contrôleur pour les tests de ComparaisonControllerTest
+│   │    │   │ 
+│   │    │   ├── service/       
+│   │    │   │     └──  CourseServiceTest.java   # Contrôleur pour les tests de CourseService
+│   │    │   │     └──  UserServiceTest.java     # Contrôleur pour les tests de UserService
+│   │    │   │ 
+└── pom.xml
+```
+
+
 ## Prérequis
 
 Assurez-vous d’avoir les outils suivants installés :
