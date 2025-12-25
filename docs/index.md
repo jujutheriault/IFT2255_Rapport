@@ -1,6 +1,3 @@
----
-title: Vue d'ensemble
----
 
 # Plateforme Web pour les étudiants de l'université de Montréal
 
