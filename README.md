@@ -137,45 +137,72 @@ rest-api/
 │   │    │   │ 
 └── pom.xml
 ```
+## Instructions d'installation
+
+1. **Cloner le dépôt**
+   ```bash
+   git clone https://github.com/jujutheriault/IFT2255_Devoir2.git
+   cd rest-api
+
+2. **Vérifier l'installation de Maven et Java**
+   ```bash
+   java -version
+   mvn -version
+   
+- Si ce n'est pas installé, installez-le selon les instruction d'installation
+
+3. ***Installer les dépendances de maven***
+    ```bash
+    mvn clean install
 
 
-## Prérequis
+## Instructions d'exécution et de test
+1. **Pour compiler le projet:**
+    ```bash
+    mvn clean compile
 
-Assurez-vous d’avoir les outils suivants installés :
+2. **Les tests** 
+- Ce projet inclut des test unitaires utilisant **JUnit 5** et **Mockito**.
+- Ces test se trouvent dans les fichiers **controller/ComparaisonControllerTest.java**, **controller/CourseControllerTest.java**,
+**service/CourseServiceTest.java**, **service/UserServiceTest.java** et **controller/WnsembleCoursControllerTest.java**. Ces fichiers se trouvent dans le dossier **test/java/com/diro/ift2255**
 
-- Python **3.11** ou plus récent
-- `pip` (gestionnaire de paquets Python)
-- `pipenv` ou équivalent (gestion d’environnement virtuel) 
-  - Évite de polluer votre système et les conflits de version.
-  - Installez-le avec `pip install pipenv`.
+3. **Pour exécuter les tests**
+    ```bash
+    mvn clean test
+
+4. **Pour exécuter et intéragir avec le projet**
+    ```bash
+    mvn clean compile exec:java -Dexec.mainClass="com.diro.ift2255.Main"
+
+- Un CLI sera démarrer en même temps dans le terminal, il imprimera le résultat des endpoints dans ce terminal. 
+
+5. **Par défaut, l'API est accessible à:**
+    ```bash
+    http://localhost:7070
+    
 
 
-## Utilisation
+## Endpoints principaux
 
-> Avant toute utilisation, assurez-vous que l’environnement virtuel est activé (`pipenv shell`).
+1. **Consulter un cours par ID**
+    ```bash
+    GET /courses/{id}
 
-### Déploiement
+2. **Consulter un cours incluant son horaire** 
+    ```bash
+    GET /courses/{id}?include_schedule=true&semester=a25
 
-Pour déployer automatiquement le site sur GitHub Pages (branche `gh-pages`)
+3. **Rechercher un cours par mot-clé**
+    ```bash
+    GET /courses/search/{mot-cle}
 
-```bash
-mkdocs gh-deploy
-```
+4. **Obtenir la liste d'un cours d'un programme** 
+    ```bash
+    GET /programs?programs_list=117510
 
-> Cette commande pousse automatiquement le contenu du site sur la branche `gh-pages`. Si la branche n'existe pas, elle est crée automatiquement.
-
-## Structure du projet
-
-- `docs/` : Contient tous les fichiers Markdown du site
-- `mkdocs.yml` : Configuration de MkDocs
-- `requirements.txt` : Dépendances Python
-- `site/` : Site généré (créé lors de la construction) -- *optionnel*
-
-## Personnalisation
-
-1. Modifiez `mkdocs.yml` pour changer la configuration du site
-2. Ajoutez/modifiez les fichiers Markdown (`.md`) dans `docs/`
-3. Personnalisez le thème en modifiant les paramètres dans `mkdocs.yml`
+5. **Obtenir la liste d'un cours d'un programme selon un trimestre**
+    ```bash
+    GET /programs/semester/{trimestre}?programs_list={programme}&include_schedule=true
 
 ## Licence
 
