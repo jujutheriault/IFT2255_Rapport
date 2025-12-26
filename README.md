@@ -45,54 +45,6 @@ Enfin, l’application propose une fonctionnalité de comparaison de plusieurs c
 **Bot Discord**
 - **Collecter et soumettre des avis étudiants à l'API REST**
 
-## Oracle de tests
-Pour chaque test, nous définissons les entrées, les sorties attendues et les effets de bord sur le système. Les tableaux ci-dessous présentent différents tests.
-
-**Tests dans UserControllerTest.java**
-
-| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
-|:-----------|:-------------------|:----------------------|:---------|:----------------|
-| **Test 1 : `getAllUsers()`**<br>`mockService.getAllUsers()` retourne<br>`[User(1,"Alice","alice@email.com"),`<br>`User(2,"Bob","bob@email.com")]` | Liste JSON :<br>`[{"id":1,"name":"Alice",...},`<br>`{"id":2,"name":"Bob",...}]`<br>Status HTTP 200 | Aucun changement<br>(lecture seule) | **Succès** | Si le service retourne une liste d'utilisateurs, le contrôleur retourne cette liste en JSON |
-| **Test 2 : `getUserById()` - Succès**<br>`pathParam("id") = "1"`<br>`mockService.getUserById(1)` retourne<br>`Optional.of(User(1,"Alice","alice@email.com"))` | JSON :<br>`{"id":1,"name":"Alice","email":"alice@email.com"}`<br>Status HTTP 200 | Aucun changement<br>(lecture seule) | **Succès** | Si l'utilisateur existe dans le système, retourne l'utilisateur en JSON |
-| **Test 3 : `getUserById()` - Not Found**<br>`pathParam("id") = "1"`<br>`mockService.getUserById(1)` retourne<br>`Optional.empty()` | JSON :<br>`{"error":"Aucun utilisateur ne correspond à l'ID: 1"}`<br>Status HTTP 404 | Aucun changement | **Échec** | Si l'utilisateur n'existe pas, retourne status 404 avec message d'erreur |
-| **Test 4 : `getUserById()` - ID invalide**<br>`pathParam("id") = "abc"` | JSON :<br>`{"error":"ID invalide"}`<br>Status HTTP 400 | Aucun changement<br>`service.getUserById()` non appelé | **Échec** | Si l'ID n'est pas numérique, lance `NumberFormatException`, retourne status 400 |
-| **Test 5 : `createUser()`**<br>Body HTTP :<br>`User(null,"Alice","alice@email.com")` | JSON de l'utilisateur créé<br>Status HTTP 201 | `service.createUser(user)` appelé<br>Utilisateur ajouté au système | **Succès** | Si les données sont valides, crée l'utilisateur et retourne status 201 |
-| **Test 6 : `deleteUser()` - Succès**<br>`pathParam("id") = "1"` | Aucun contenu<br>Status HTTP 204 | `service.deleteUser(1)` appelé<br>Utilisateur ID=1 supprimé | **Succès** | Si l'ID est valide, supprime l'utilisateur et retourne status 204 |
-| **Test 7 : `deleteUser()` - ID invalide**<br>`pathParam("id") = "abc"` | JSON :<br>`{"error":"ID invalide"}`<br>Status HTTP 400 | Aucun changement<br>`service.deleteUser()` non appelé | **Échec** | Si l'ID n'est pas numérique, retourne status 400, aucune suppression |
-
-
-
-**Tests dans EnsembleController.java**
-
-| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
-|:-----------|:-------------------|:----------------------|:---------|:----------------|
-| **Test 1 : `createEnsemble()` - Création**<br>`pathParam("idEnsemble") = "ENS-1"`<br>(ensemble n'existe pas) | JSON :<br>`{"id":"ENS-1","list":[]}`<br>Status HTTP 201 | `ensembles = {"ENS-1" -> EnsembleCours(id="ENS-1", list=[])}` | **Succès** | Si l'ensemble n'existe pas, le crée avec une liste vide et retourne status 201 |
-| **Test 2 : `createEnsemble()` - Déjà existant**<br>`pathParam("idEnsemble") = "ENS-1"`<br>(ensemble existe déjà) | JSON :<br>`{"error":"Ensemble déjà existant"}`<br>Status HTTP 400 | `ensembles` inchangé<br>(contient déjà "ENS-1") | **Échec** | Si l'ensemble existe déjà, refuse la création et retourne status 400 |
-| **Test 3 : `addCourse()` - Ensemble inexistant**<br>`pathParam("idEnsemble") = "ENS-NonExistent"`<br>`pathParam("courseId") = "IFT-1015"` | JSON :<br>`{"error":"Ensemble non trouvé"}`<br>Status HTTP 404 | Aucun changement | **Échec** | Si l'ensemble n'existe pas, retourne status 404, aucun cours ajouté |
-| **Test 4 : `addCourse()` - ID cours invalide**<br>`pathParam("idEnsemble") = "ENS-1"`<br>`pathParam("courseId") = "A"`<br>(< 6 caractères) | JSON :<br>`{"error":"ID du cours invalide"}`<br>Status HTTP 400 | Ensemble "ENS-1" inchangé<br>`list = []` | **Échec** | Si l'ID du cours est trop court (< 6 car.), retourne status 400 |
-| **Test 5 : `addCourse()` - Succès**<br>`pathParam("idEnsemble") = "ENS-1"`<br>`pathParam("courseId") = "IFT-1015"`<br>(≥ 6 caractères) | JSON :<br>`{"id":"ENS-1","list":["IFT-1015"]}`<br>Status HTTP 200 | `ensembles.get("ENS-1").getList() = ["IFT-1015"]` | **Succès** | Si l'ensemble existe et l'ID cours valide, ajoute le cours et retourne ensemble mis à jour |
-
-
-**Tests dans CourseServiceTest.java**
-
-| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
-|:-----------|:-------------------|:----------------------|:---------|:----------------|
-| **Test 1 : `getProgram()` - JSON valide**<br>`programId = "117510"`<br>`includeDetail = true`<br>`responseLevel = "reg"`<br>`clientApi.get()` retourne :<br>`[{"id":"117510","name":"Baccalauréat en informatique","courses_detail":[...]}]` | `JsonNode` parsé contenant :<br>- Tableau JSON de taille 1<br>- `id = "117510"`<br>- `name = "Baccalauréat en informatique"`<br>- Champ `courses_detail` présent | `clientApi.get()` appelé 1 fois<br>Aucune modification de données | **Succès** | Si l'API retourne un JSON valide, le service parse correctement le JSON en `JsonNode` et retourne la structure complète du programme |
-| **Test 2 : `getProgram()` - JSON invalide**<br>`programId = "117510"`<br>`includeDetail = true`<br>`responseLevel = "reg"`<br>`clientApi.get()` retourne :<br>`"NOT_A_JSON"` (chaîne invalide) | `RuntimeException` lancée<br>Message d'erreur contient :<br>`"Impossible de parser"` | `clientApi.get()` appelé 1 fois<br>Aucune modification de données | **Échec** | Si l'API retourne une chaîne qui n'est pas un JSON valide, le service lance une `RuntimeException` avec un message explicite indiquant l'échec du parsing |
-
-
-**Tests dans CourseControllerTest.java**
-
-| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
-|:-----------|:-------------------|:----------------------|:---------|:----------------|
-| **Test 1 : `checkEligibility()` - Étudiant éligible**<br>`pathParam("id") = "IFT2255"`<br>`queryParam("completed") = "ESP1900,IFT1025"`<br>`mockCourse.missingPrerequisites()` retourne `[]` | JSON :<br>`{"eligible": true, "course_id": "IFT2255", "missing_prerequisites": []}`<br>Status HTTP 200 | `service.getCourseById()` appelé<br>`mockCourse.missingPrerequisites()` appelé<br>Aucune modification | **Succès** | Si l'étudiant a complété tous les prérequis, retourne `eligible=true` avec liste vide |
-| **Test 2 : `checkEligibility()` - Étudiant non éligible**<br>`pathParam("id") = "IFT2255"`<br>`queryParam("completed") = "ESP1900"`<br>`mockCourse.missingPrerequisites()` retourne `["IFT1025", "MAT1978"]` | JSON :<br>`{"eligible": false, "course_id": "IFT2255", "missing_prerequisites": ["IFT1025", "MAT1978"]}`<br>Status HTTP 200 | `service.getCourseById()` appelé<br>`mockCourse.missingPrerequisites()` appelé<br>Aucune modification | **Échec** | Si des prérequis manquent, retourne `eligible=false` avec la liste des 2 cours manquants |
-| **Test 3 : `checkEligibility()` - Cours inexistant**<br>`pathParam("id") = "IFT9999"`<br>`queryParam("completed") = "IFT1025"`<br>`service.getCourseById()` retourne `Optional.empty()` | JSON :<br>`{"error": "Cours introuvable: IFT9999"}`<br>Status HTTP 404 | `service.getCourseById()` appelé<br>`mockCourse.missingPrerequisites()` non appelé<br>Aucune modification | **Échec** | Si le cours n'existe pas, retourne status 404, vérification non effectuée |
-| **Test 4 : `getCoursesByProgram()` - Programme valide**<br>`queryParam("programs_list") = "117510"`<br>`queryParam("response_level") = "reg"`<br>`queryParam("include_courses_detail") = "true"`<br>`service.getProgram()` retourne :<br>`[{"id":"117510","name":"Baccalauréat en informatique"}]` | `JsonNode` du programme<br>Status HTTP 200 | `service.getProgram("117510", true, "reg")` appelé<br>Aucune modification | **Succès** | Si l'ID programme est valide, récupère les données du programme et retourne le JSON complet |
-| **Test 5 : `getCoursesByProgram()` - ID manquant**<br>`queryParam("programs_list") = null` | JSON :<br>`{"error": "Le paramètre programs_list est requis (ex: 117510)."}`<br>Status HTTP 400 | `service.getProgram()` non appelé<br>Aucune modification | **Échec** | Si le paramètre `programs_list` est absent, retourne status 400 avec message d'erreur |
-| **Test 6 : `getCoursesByProgramAndSemester()` - Succès**<br>`queryParam("programs_list") = "117510"`<br>`pathParam("semester") = "h25"`<br>`service.normalizeSemester("h25")` retourne `"h25"`<br>`service.getCoursesByProgramAndSemester()` retourne :<br>`[Course("IFT2255","Génie logiciel"), Course("IFT2015","Structures de données")]` | Liste JSON de 2 cours<br>Status HTTP 200 | `service.normalizeSemester()` appelé<br>`service.getCoursesByProgramAndSemester("117510", "h25")` appelé<br>Aucune modification | **Succès** | Si programme et trimestre valides, normalise le format, récupère et retourne 2 cours offerts |
-| **Test 7 : `getCoursesByProgramAndSemester()` - Aucun cours**<br>`queryParam("programs_list") = "117510"`<br>`pathParam("semester") = "h25"`<br>`service.normalizeSemester("h25")` retourne `"h25"`<br>`service.getCoursesByProgramAndSemester()` retourne `[]` | JSON :<br>`{"error": "Aucun cours trouvé pour ce programme et ce trimestre."}`<br>Status HTTP 404 | `service.normalizeSemester()` appelé<br>`service.getCoursesByProgramAndSemester("117510", "h25")` appelé<br>Aucune modification | **Échec** | Si aucun cours offert au trimestre, retourne status 404 avec message d'erreur |
-
 ---
 
 ## Organisation du repertoire
@@ -159,6 +111,54 @@ rest-api/
 │   │    │   │ 
 └── pom.xml
 ```
+## Oracle de tests
+Pour chaque test, nous définissons les entrées, les sorties attendues et les effets de bord sur le système. Les tableaux ci-dessous présentent différents tests.
+
+**Tests dans UserControllerTest.java**
+
+| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
+|:-----------|:-------------------|:----------------------|:---------|:----------------|
+| **Test 1 : `getAllUsers()`**<br>`mockService.getAllUsers()` retourne<br>`[User(1,"Alice","alice@email.com"),`<br>`User(2,"Bob","bob@email.com")]` | Liste JSON :<br>`[{"id":1,"name":"Alice",...},`<br>`{"id":2,"name":"Bob",...}]`<br>Status HTTP 200 | Aucun changement<br>(lecture seule) | **Succès** | Si le service retourne une liste d'utilisateurs, le contrôleur retourne cette liste en JSON |
+| **Test 2 : `getUserById()` - Succès**<br>`pathParam("id") = "1"`<br>`mockService.getUserById(1)` retourne<br>`Optional.of(User(1,"Alice","alice@email.com"))` | JSON :<br>`{"id":1,"name":"Alice","email":"alice@email.com"}`<br>Status HTTP 200 | Aucun changement<br>(lecture seule) | **Succès** | Si l'utilisateur existe dans le système, retourne l'utilisateur en JSON |
+| **Test 3 : `getUserById()` - Not Found**<br>`pathParam("id") = "1"`<br>`mockService.getUserById(1)` retourne<br>`Optional.empty()` | JSON :<br>`{"error":"Aucun utilisateur ne correspond à l'ID: 1"}`<br>Status HTTP 404 | Aucun changement | **Échec** | Si l'utilisateur n'existe pas, retourne status 404 avec message d'erreur |
+| **Test 4 : `getUserById()` - ID invalide**<br>`pathParam("id") = "abc"` | JSON :<br>`{"error":"ID invalide"}`<br>Status HTTP 400 | Aucun changement<br>`service.getUserById()` non appelé | **Échec** | Si l'ID n'est pas numérique, lance `NumberFormatException`, retourne status 400 |
+| **Test 5 : `createUser()`**<br>Body HTTP :<br>`User(null,"Alice","alice@email.com")` | JSON de l'utilisateur créé<br>Status HTTP 201 | `service.createUser(user)` appelé<br>Utilisateur ajouté au système | **Succès** | Si les données sont valides, crée l'utilisateur et retourne status 201 |
+| **Test 6 : `deleteUser()` - Succès**<br>`pathParam("id") = "1"` | Aucun contenu<br>Status HTTP 204 | `service.deleteUser(1)` appelé<br>Utilisateur ID=1 supprimé | **Succès** | Si l'ID est valide, supprime l'utilisateur et retourne status 204 |
+| **Test 7 : `deleteUser()` - ID invalide**<br>`pathParam("id") = "abc"` | JSON :<br>`{"error":"ID invalide"}`<br>Status HTTP 400 | Aucun changement<br>`service.deleteUser()` non appelé | **Échec** | Si l'ID n'est pas numérique, retourne status 400, aucune suppression |
+
+
+
+**Tests dans EnsembleController.java**
+
+| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
+|:-----------|:-------------------|:----------------------|:---------|:----------------|
+| **Test 1 : `createEnsemble()` - Création**<br>`pathParam("idEnsemble") = "ENS-1"`<br>(ensemble n'existe pas) | JSON :<br>`{"id":"ENS-1","list":[]}`<br>Status HTTP 201 | `ensembles = {"ENS-1" -> EnsembleCours(id="ENS-1", list=[])}` | **Succès** | Si l'ensemble n'existe pas, le crée avec une liste vide et retourne status 201 |
+| **Test 2 : `createEnsemble()` - Déjà existant**<br>`pathParam("idEnsemble") = "ENS-1"`<br>(ensemble existe déjà) | JSON :<br>`{"error":"Ensemble déjà existant"}`<br>Status HTTP 400 | `ensembles` inchangé<br>(contient déjà "ENS-1") | **Échec** | Si l'ensemble existe déjà, refuse la création et retourne status 400 |
+| **Test 3 : `addCourse()` - Ensemble inexistant**<br>`pathParam("idEnsemble") = "ENS-NonExistent"`<br>`pathParam("courseId") = "IFT-1015"` | JSON :<br>`{"error":"Ensemble non trouvé"}`<br>Status HTTP 404 | Aucun changement | **Échec** | Si l'ensemble n'existe pas, retourne status 404, aucun cours ajouté |
+| **Test 4 : `addCourse()` - ID cours invalide**<br>`pathParam("idEnsemble") = "ENS-1"`<br>`pathParam("courseId") = "A"`<br>(< 6 caractères) | JSON :<br>`{"error":"ID du cours invalide"}`<br>Status HTTP 400 | Ensemble "ENS-1" inchangé<br>`list = []` | **Échec** | Si l'ID du cours est trop court (< 6 car.), retourne status 400 |
+| **Test 5 : `addCourse()` - Succès**<br>`pathParam("idEnsemble") = "ENS-1"`<br>`pathParam("courseId") = "IFT-1015"`<br>(≥ 6 caractères) | JSON :<br>`{"id":"ENS-1","list":["IFT-1015"]}`<br>Status HTTP 200 | `ensembles.get("ENS-1").getList() = ["IFT-1015"]` | **Succès** | Si l'ensemble existe et l'ID cours valide, ajoute le cours et retourne ensemble mis à jour |
+
+
+**Tests dans CourseServiceTest.java**
+
+| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
+|:-----------|:-------------------|:----------------------|:---------|:----------------|
+| **Test 1 : `getProgram()` - JSON valide**<br>`programId = "117510"`<br>`includeDetail = true`<br>`responseLevel = "reg"`<br>`clientApi.get()` retourne :<br>`[{"id":"117510","name":"Baccalauréat en informatique","courses_detail":[...]}]` | `JsonNode` parsé contenant :<br>- Tableau JSON de taille 1<br>- `id = "117510"`<br>- `name = "Baccalauréat en informatique"`<br>- Champ `courses_detail` présent | `clientApi.get()` appelé 1 fois<br>Aucune modification de données | **Succès** | Si l'API retourne un JSON valide, le service parse correctement le JSON en `JsonNode` et retourne la structure complète du programme |
+| **Test 2 : `getProgram()` - JSON invalide**<br>`programId = "117510"`<br>`includeDetail = true`<br>`responseLevel = "reg"`<br>`clientApi.get()` retourne :<br>`"NOT_A_JSON"` (chaîne invalide) | `RuntimeException` lancée<br>Message d'erreur contient :<br>`"Impossible de parser"` | `clientApi.get()` appelé 1 fois<br>Aucune modification de données | **Échec** | Si l'API retourne une chaîne qui n'est pas un JSON valide, le service lance une `RuntimeException` avec un message explicite indiquant l'échec du parsing |
+
+
+**Tests dans CourseControllerTest.java**
+
+| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
+|:-----------|:-------------------|:----------------------|:---------|:----------------|
+| **Test 1 : `checkEligibility()` - Étudiant éligible**<br>`pathParam("id") = "IFT2255"`<br>`queryParam("completed") = "ESP1900,IFT1025"`<br>`mockCourse.missingPrerequisites()` retourne `[]` | JSON :<br>`{"eligible": true, "course_id": "IFT2255", "missing_prerequisites": []}`<br>Status HTTP 200 | `service.getCourseById()` appelé<br>`mockCourse.missingPrerequisites()` appelé<br>Aucune modification | **Succès** | Si l'étudiant a complété tous les prérequis, retourne `eligible=true` avec liste vide |
+| **Test 2 : `checkEligibility()` - Étudiant non éligible**<br>`pathParam("id") = "IFT2255"`<br>`queryParam("completed") = "ESP1900"`<br>`mockCourse.missingPrerequisites()` retourne `["IFT1025", "MAT1978"]` | JSON :<br>`{"eligible": false, "course_id": "IFT2255", "missing_prerequisites": ["IFT1025", "MAT1978"]}`<br>Status HTTP 200 | `service.getCourseById()` appelé<br>`mockCourse.missingPrerequisites()` appelé<br>Aucune modification | **Échec** | Si des prérequis manquent, retourne `eligible=false` avec la liste des 2 cours manquants |
+| **Test 3 : `checkEligibility()` - Cours inexistant**<br>`pathParam("id") = "IFT9999"`<br>`queryParam("completed") = "IFT1025"`<br>`service.getCourseById()` retourne `Optional.empty()` | JSON :<br>`{"error": "Cours introuvable: IFT9999"}`<br>Status HTTP 404 | `service.getCourseById()` appelé<br>`mockCourse.missingPrerequisites()` non appelé<br>Aucune modification | **Échec** | Si le cours n'existe pas, retourne status 404, vérification non effectuée |
+| **Test 4 : `getCoursesByProgram()` - Programme valide**<br>`queryParam("programs_list") = "117510"`<br>`queryParam("response_level") = "reg"`<br>`queryParam("include_courses_detail") = "true"`<br>`service.getProgram()` retourne :<br>`[{"id":"117510","name":"Baccalauréat en informatique"}]` | `JsonNode` du programme<br>Status HTTP 200 | `service.getProgram("117510", true, "reg")` appelé<br>Aucune modification | **Succès** | Si l'ID programme est valide, récupère les données du programme et retourne le JSON complet |
+| **Test 5 : `getCoursesByProgram()` - ID manquant**<br>`queryParam("programs_list") = null` | JSON :<br>`{"error": "Le paramètre programs_list est requis (ex: 117510)."}`<br>Status HTTP 400 | `service.getProgram()` non appelé<br>Aucune modification | **Échec** | Si le paramètre `programs_list` est absent, retourne status 400 avec message d'erreur |
+| **Test 6 : `getCoursesByProgramAndSemester()` - Succès**<br>`queryParam("programs_list") = "117510"`<br>`pathParam("semester") = "h25"`<br>`service.normalizeSemester("h25")` retourne `"h25"`<br>`service.getCoursesByProgramAndSemester()` retourne :<br>`[Course("IFT2255","Génie logiciel"), Course("IFT2015","Structures de données")]` | Liste JSON de 2 cours<br>Status HTTP 200 | `service.normalizeSemester()` appelé<br>`service.getCoursesByProgramAndSemester("117510", "h25")` appelé<br>Aucune modification | **Succès** | Si programme et trimestre valides, normalise le format, récupère et retourne 2 cours offerts |
+| **Test 7 : `getCoursesByProgramAndSemester()` - Aucun cours**<br>`queryParam("programs_list") = "117510"`<br>`pathParam("semester") = "h25"`<br>`service.normalizeSemester("h25")` retourne `"h25"`<br>`service.getCoursesByProgramAndSemester()` retourne `[]` | JSON :<br>`{"error": "Aucun cours trouvé pour ce programme et ce trimestre."}`<br>Status HTTP 404 | `service.normalizeSemester()` appelé<br>`service.getCoursesByProgramAndSemester("117510", "h25")` appelé<br>Aucune modification | **Échec** | Si aucun cours offert au trimestre, retourne status 404 avec message d'erreur |
+
 ## Instructions d'installation
 
 1. **Cloner le dépôt**
