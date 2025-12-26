@@ -61,6 +61,18 @@ Pour chaque test, nous définissons les entrées, les sorties attendues et les e
 | **Test 7 : `deleteUser()` - ID invalide**<br>`pathParam("id") = "abc"` | JSON :<br>`{"error":"ID invalide"}`<br>Status HTTP 400 | Aucun changement<br>`service.deleteUser()` non appelé | **Échec** | Si l'ID n'est pas numérique, retourne status 400, aucune suppression |
 
 
+
+**Tests dans EnsembleController.java**
+
+| **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
+|:-----------|:-------------------|:----------------------|:---------|:----------------|
+| **Test 1 : `createEnsemble()` - Création**<br>`pathParam("idEnsemble") = "ENS-1"`<br>(ensemble n'existe pas) | JSON :<br>`{"id":"ENS-1","list":[]}`<br>Status HTTP 201 | `ensembles = {"ENS-1" -> EnsembleCours(id="ENS-1", list=[])}` | **Succès** | Si l'ensemble n'existe pas, le crée avec une liste vide et retourne status 201 |
+| **Test 2 : `createEnsemble()` - Déjà existant**<br>`pathParam("idEnsemble") = "ENS-1"`<br>(ensemble existe déjà) | JSON :<br>`{"error":"Ensemble déjà existant"}`<br>Status HTTP 400 | `ensembles` inchangé<br>(contient déjà "ENS-1") | **Échec** | Si l'ensemble existe déjà, refuse la création et retourne status 400 |
+| **Test 3 : `addCourse()` - Ensemble inexistant**<br>`pathParam("idEnsemble") = "ENS-NonExistent"`<br>`pathParam("courseId") = "IFT-1015"` | JSON :<br>`{"error":"Ensemble non trouvé"}`<br>Status HTTP 404 | Aucun changement | **Échec** | Si l'ensemble n'existe pas, retourne status 404, aucun cours ajouté |
+| **Test 4 : `addCourse()` - ID cours invalide**<br>`pathParam("idEnsemble") = "ENS-1"`<br>`pathParam("courseId") = "A"`<br>(< 6 caractères) | JSON :<br>`{"error":"ID du cours invalide"}`<br>Status HTTP 400 | Ensemble "ENS-1" inchangé<br>`list = []` | **Échec** | Si l'ID du cours est trop court (< 6 car.), retourne status 400 |
+| **Test 5 : `addCourse()` - Succès**<br>`pathParam("idEnsemble") = "ENS-1"`<br>`pathParam("courseId") = "IFT-1015"`<br>(≥ 6 caractères) | JSON :<br>`{"id":"ENS-1","list":["IFT-1015"]}`<br>Status HTTP 200 | `ensembles.get("ENS-1").getList() = ["IFT-1015"]` | **Succès** | Si l'ensemble existe et l'ID cours valide, ajoute le cours et retourne ensemble mis à jour |
+
+
 **Tests dans CourseServiceTest.java**
 
 | **Entrée** | **Sortie attendue** | **État après l'appel** | **Type** | **Description** |
