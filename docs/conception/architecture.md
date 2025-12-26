@@ -30,7 +30,7 @@ Il est aussi plus facile de détecter les problèmes d'une partie du code avec c
 
 ### API backend
   - **Classes clés :** Contrôleurs métiers (`SelectionController`, `RechecrherCoursController`, `ConsulterCoursController`, `ComparaisonController`) et modèle de domaine (`Cours`, `SelectionCours`, `RechercheCours`, `RésultatsAgrégées`, `Avis`, `Horaire`, etc)
-  - **Rôle :** Implémentater la logique applicative (Sélection, recherche, comparason, calcul de charge de travail, Éligibilté, etc)
+  - **Rôle :** Implémenter la logique applicative (Sélection, recherche, comparason, calcul de charge de travail, Éligibilté, etc)
   - **Responsabilités :** Intégrer les sources de données 
 
 ## Communication entre composants
